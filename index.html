@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>移动迷宫</title>
+
+   <link rel="stylesheet" href="css/main.css" type="text/css">
+</head>
+<body>
+  <div class="header">
+      steps: <span id="step">0</span>
+      complete: <span id="complete">0</span>
+      <div>移动迷宫1.0版本</div>
+  </div>
+  <div class="content">
+      <div id="map">
+         <canvas id="canvas" style="background:#eeeeee;"> </canvas>
+      </div>
+      <div class="rank" id="role_list" >
+          <div class="rank_title">排行榜</div>
+          <div class="rank_best">
+              <div>今日最佳</div>
+              <!--<div class="best_person">-->
+                  <!--<div class="best_name">陈早早</div>-->
+                  <!--<div class="best_score">5分</div>-->
+              <!--</div>-->
+          </div>
+          <div class="role_list">
+              <!--<div class="role_one">-->
+                  <!--<span class="role_metal">1</span><span class="role_name">陈迟迟</span><span class="role_score">10分</span>-->
+              <!--</div>-->
+          </div>
+          <!--<ul></ul>-->
+      </div>
+      <div id="roles"></div>
+  </div>
+  <div class="footer">
+      <input type="text" name="send" placeholder="说点什么..."/>
+  </div>
+</body>
+<script src="js/jquery.min.js"></script>
+<script src="js/json2.js"></script>
+<script src="js/layer/layer.js"></script>
+<script src="js/main.js"></script>
+<script src="js/sessionStorage.js"></script>
+<script src="js/websocket.js"></script>
+</html>
