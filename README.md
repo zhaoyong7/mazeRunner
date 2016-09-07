@@ -23,3 +23,6 @@
     }
 }) ;
 ```
+
+#详细内容看tower文档
+https://tower.im/projects/cc98b20272ce417fb27bf4c8f87227a1/
