@@ -361,7 +361,7 @@ html, body {
 .role_list{
     padding-top: 10px;
     min-height: 100px;
-    max-height: 500px;
+    max-height: 310px;
     overflow-y: scroll;
 
 }
