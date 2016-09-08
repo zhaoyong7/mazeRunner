@@ -146,6 +146,7 @@ function sendMessage(){
 
 /*过滤输入信息*/
 function removeHTMLTag(str) {
+    str = str.replace(/<script.*?>.*?<\/script>/ig, '');
     str = str.replace(/<\/?[^>]*>/g,''); //去除HTML tag
     str = str.replace(/[ | ]*\n/g,'\n'); //去除行尾空白
     str=str.replace(/ /ig,'');//去掉

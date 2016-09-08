@@ -28,6 +28,7 @@ function connect() {
 // 输入姓名
 function show_prompt(){
     var name = prompt('输入你的名字：', '');
+    name = removeHTMLTag(name) ;
     if(!name || name=='null'){
         alert("输入名字为空或者为'null'，请重新输入！");
         show_prompt();
