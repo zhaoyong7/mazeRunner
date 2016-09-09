@@ -1,11 +1,6 @@
 
 function getSession(){
     if(!sessionStorage.getItem('mazeRunner')){
-
-        var red = Math.floor(Math.random() * 100) + 100 ;
-        var green = Math.floor(Math.random() * 100) + 100 ;
-        var blue = Math.floor(Math.random() * 100) + 100 ;
-
         var str = JSON.stringify({
             role : {
                 id:0,

@@ -131,9 +131,9 @@ function sendMessage(){
         return false;
     $('.footer>input').val('');
     layer.tips(text, '#myself',{
-        tips: [4, '#3595CC'],
-        time: 2500,
-        tipsMore:true ,
+        tips     : [4, '#3595CC'],
+        time     : 2500,
+        tipsMore :true ,
         skin     : 'layer_tipes_skin'
     });
     var message = {

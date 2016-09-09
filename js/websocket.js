@@ -6,6 +6,7 @@ connect() ;
 function connect() {
     // 创建websocket
     ws = new WebSocket("ws://"+document.domain+":8283");
+//    ws = new WebSocket("ws://120.25.105.202:8283");
     // 当socket连接打开时，输入用户名
     ws.onopen = onopen;
     //// 当有消息时根据消息类型显示不同信息
@@ -27,8 +28,7 @@ function connect() {
 
 // 输入姓名
 function show_prompt(){
-    var name = prompt('输入你的名字：', '');
-    name = removeHTMLTag(name) ;
+    var name  =  prompt("请输入昵称:") ;
     if(!name || name=='null'){
         alert("输入名字为空或者为'null'，请重新输入！");
         show_prompt();
@@ -134,6 +134,13 @@ function onmessage(e)
                 skin    : 'layer_tipes_skin'
             });
             break ;
+        case 'check':
+            layer.msg("数据异常") ;
+            delete repsonse['type'] ;
+            mazeRunner.role = repsonse ;
+            updateSessionByWindow() ;
+            paintRole(repsonse['x'],repsonse['y']) ;
+            break;
     }
 }
 
