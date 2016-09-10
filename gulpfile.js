@@ -19,7 +19,7 @@ var paths = {
         './vendor/notify.js',
         './src/js/*.js'
     ],
-    cssDist: ['dist/css/*.js'],
+    cssDist: ['dist/css/*.css'],
     scriptDist: ['dist/js/*.js']
 };
 
