@@ -41,19 +41,45 @@ gulp.task('mincss', function () {
     .pipe(minifyCss({
         keepSpecialComments: 0
     }))
+    .pipe(rev())
     .pipe(gulp.dest('build/css'))
-    .pipe(livereload());
+    .pipe(rev.manifest())
+    .pipe(gulp.dest('rev/css'));
 });
 
 gulp.task('minjs', function () {
     gulp.src(paths.scriptDist)
     .pipe(concat('all.js'))
     .pipe(uglify())
+    .pipe(rev())
     .pipe(gulp.dest('build/js'))
-    .pipe(livereload());
+    .pipe(rev.manifest())
+    .pipe(gulp.dest('rev/js'));
 });
 
-gulp.task('test', ['testcss', 'testjs']);
+gulp.task('rev', function () {
+    gulp.src(['rev/**/*.json', 'index.html'])
+    .pipe(revCollector({
+        replaceReved: true,
+        dirReplacements: {
+            'dist/css': 'build/css',
+            'dist/js': 'build/js'
+        }
+    }))
+    .pipe(gulp.dest('./'));
+});
+
+gulp.task('reverse', function () {
+    gulp.src(['rev/**/*.json', 'index.html'])
+    .pipe(revCollector({
+        replaceReved: true,
+        dirReplacements: {
+            'dist/css': 'build/css',
+            'dist/js': 'build/js'
+        }
+    }))
+    .pipe(gulp.dest('./'));
+});
 
 gulp.task('watch', function () {
     livereload.listen();
@@ -62,4 +88,5 @@ gulp.task('watch', function () {
     gulp.watch(paths.listenJs, ['testjs']);
 });
 
-gulp.task('build', ['mincss', 'minjs']);
+gulp.task('test', ['testcss', 'testjs']);
+gulp.task('build', ['mincss', 'minjs', 'rev']);
