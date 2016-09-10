@@ -7,41 +7,59 @@ var uglify = require('gulp-uglify');
 var livereload = require('gulp-livereload');
 
 var paths = {
-    listen: ['./src/js/*.js', './index.html'],
-    cssAll:[
+    listenCss: ['./src/css/*.css'],
+    listenJs: ['./src/js/*.js', './index.html'],
+    css:[
         './src/css/*.css',
     ],
-    scriptAll: [
+    script: [
         './vendor/jquery.js',
         './vendor/json2.js',
         './vendor/layer/layer.js',
         './vendor/notify.js',
         './src/js/*.js'
-    ]
+    ],
+    cssDist: ['dist/css/*.js'],
+    scriptDist: ['dist/js/*.js']
 };
 
-gulp.task('css', function () {
-    gulp.src(paths.cssAll)
-    .pipe(minifyCss({
-        keepSpecialComments: 0
-    }))
+gulp.task('testcss', function () {
+    gulp.src(paths.css)
     .pipe(gulp.dest('dist/css'))
     .pipe(livereload());
 });
 
-gulp.task('scripts', function () {
-    gulp.src(paths.scriptAll)
+gulp.task('testjs', function () {
+    gulp.src(paths.script)
     .pipe(concat('all.js'))
-    .pipe(uglify())
     .pipe(gulp.dest('dist/js'))
     .pipe(livereload());
 });
 
+gulp.task('mincss', function () {
+    gulp.src(paths.cssDist)
+    .pipe(minifyCss({
+        keepSpecialComments: 0
+    }))
+    .pipe(gulp.dest('build/css'))
+    .pipe(livereload());
+});
+
+gulp.task('minjs', function () {
+    gulp.src(paths.scriptDist)
+    .pipe(concat('all.js'))
+    .pipe(uglify())
+    .pipe(gulp.dest('build/js'))
+    .pipe(livereload());
+});
+
+gulp.task('test', ['testcss', 'testjs']);
+
 gulp.task('watch', function () {
     livereload.listen();
 
-    gulp.watch(paths.cssAll, ['css']);
-    gulp.watch(paths.listen, ['scripts']);
+    gulp.watch(paths.listenCss, ['testcss']);
+    gulp.watch(paths.listenJs, ['testjs']);
 });
 
-gulp.task('build', ['css', 'scripts']);
+gulp.task('build', ['mincss', 'minjs']);
