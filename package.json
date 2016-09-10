@@ -1,0 +1,36 @@
+{
+  "name": "maze",
+  "version": "0.0.1",
+  "description": "some game",
+  "main": "index.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/dongshaohan/mazeRunner.git"
+  },
+  "keywords": [
+    "game"
+  ],
+  "author": "chenzs dongsh",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/dongshaohan/mazeRunner/issues"
+  },
+  "homepage": "https://github.com/dongshaohan/mazeRunner",
+  "devDependencies": {
+    "gulp": "^3.9.1"
+  },
+  "dependencies": {
+    "gulp-concat": "^2.6.0",
+    "gulp-livereload": "^3.8.1",
+    "gulp-minify-css": "^1.2.4",
+    "gulp-rev": "^7.1.2",
+    "gulp-rev-collector": "^1.0.5",
+    "gulp-uglify": "^2.0.0"
+  }
+}
