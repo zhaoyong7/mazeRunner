@@ -5,8 +5,8 @@ connect() ;
 
 function connect() {
     // 创建websocket
-    ws = new WebSocket("ws://"+document.domain+":8283");
-//    ws = new WebSocket("ws://120.25.105.202:8283");
+    // ws = new WebSocket("ws://10.8.8.34:8283");
+   ws = new WebSocket("ws://120.25.105.202:8283");
     // 当socket连接打开时，输入用户名
     ws.onopen = onopen;
     //// 当有消息时根据消息类型显示不同信息

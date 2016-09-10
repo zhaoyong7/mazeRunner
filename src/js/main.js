@@ -155,7 +155,7 @@ function removeHTMLTag(str) {
 
 $.ajax({
     type:"GET" ,
-    url:"api/grid.php" ,
+    url:"http://120.25.105.202:2123/mazeRunner/api/grid.php" ,
     dataType:"JSON" ,
     beforeSend:function(){
         $("#load_text").remove() ;
