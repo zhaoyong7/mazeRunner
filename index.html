@@ -1,37 +1,34 @@
 <!DOCTYPE html>
-<html>
+<html lang="zh-cmn-Hans">
 <head>
-  <meta charset="UTF-8">
-  <title>移动迷宫</title>
-
-   <link rel="stylesheet" href="css/main.css" type="text/css">
+    <meta charset="utf-8">
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge, chrome=1">
+    <title>移动迷宫</title>
+    <link rel="stylesheet" href="dist/css/main.css" type="text/css">
 </head>
 <body>
-  <div class="header">
-      steps: <span id="step">0</span>
-      complete: <span id="complete">0</span>
-      <div>移动迷宫1.0版本</div>
-  </div>
-  <div class="content">
-      <div id="map">
-         <canvas id="canvas" style="background:#eeeeee;"> </canvas>
-      </div>
-      <div class="rank" id="role_list" >
-          <div class="rank_title">排行榜</div>
-          <div class="rank_best">
-              <div>今日最佳</div>
-          </div>
-          <div class="role_list">
-          </div>
-      </div>
-      <div id="roles"></div>
-  </div>
-  <div class="footer">
-      <input type="text" name="send" placeholder="说点什么..."/>
-  </div>
+    <div class="header">
+        steps: <span id="step">0</span>
+        complete: <span id="complete">0</span>
+        <div>移动迷宫1.0版本</div>
+    </div>
+    <div class="content">
+        <div id="map">
+            <canvas id="canvas" style="background:#eeeeee;"> </canvas>
+        </div>
+        <div class="rank" id="role_list" >
+            <div class="rank_title">排行榜</div>
+            <div class="rank_best">
+                <div>今日最佳</div>
+            </div>
+            <div class="role_list"></div>
+        </div>
+        <div id="roles"></div>
+    </div>
+    <div class="footer">
+        <input type="text" name="send" placeholder="说点什么..."/>
+    </div>
 </body>
-<script src="js/jquery.min.js"></script>
-<script src="js/json2.js"></script>
-<script src="js/layer/layer.js"></script>
-<script src="js/min/main.min.js"></script>
+<script src="dist/js/all.js"></script>
 </html>
