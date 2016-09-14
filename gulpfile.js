@@ -3,6 +3,7 @@ var concat = require('gulp-concat');
 var minifyCss = require('gulp-minify-css');
 var rev = require('gulp-rev');
 var revCollector = require('gulp-rev-collector');
+var replace = require('gulp-replace');
 var uglify = require('gulp-uglify');
 var livereload = require('gulp-livereload');
 
@@ -20,18 +21,21 @@ var paths = {
         './src/js/*.js'
     ],
     cssDist: ['dist/css/*.css'],
-    scriptDist: ['dist/js/*.js']
+    scriptDist: ['dist/js/*.js'],
+    cssName: 'all.css',
+    jsName: 'all.js'
 };
 
 gulp.task('testcss', function () {
     gulp.src(paths.css)
+    .pipe(concat(paths.cssName))
     .pipe(gulp.dest('dist/css'))
     .pipe(livereload());
 });
 
 gulp.task('testjs', function () {
     gulp.src(paths.script)
-    .pipe(concat('all.js'))
+    .pipe(concat(paths.jsName))
     .pipe(gulp.dest('dist/js'))
     .pipe(livereload());
 });
@@ -49,7 +53,6 @@ gulp.task('mincss', function () {
 
 gulp.task('minjs', function () {
     gulp.src(paths.scriptDist)
-    .pipe(concat('all.js'))
     .pipe(uglify())
     .pipe(rev())
     .pipe(gulp.dest('build/js'))
@@ -69,15 +72,10 @@ gulp.task('rev', function () {
     .pipe(gulp.dest('./'));
 });
 
-gulp.task('reverse', function () {
-    gulp.src(['rev/**/*.json', 'index.html'])
-    .pipe(revCollector({
-        replaceReved: true,
-        dirReplacements: {
-            'dist/css': 'build/css',
-            'dist/js': 'build/js'
-        }
-    }))
+gulp.task('replace', function () {
+    gulp.src(['index.html'])
+    .pipe(replace('build/css/all-52b8a37d28.css', 'dist/css/' + paths.cssName))
+    .pipe(replace('build/js/all-1239e1b732.js', 'dist/js/' + paths.jsName))
     .pipe(gulp.dest('./'));
 });
 
@@ -88,5 +86,5 @@ gulp.task('watch', function () {
     gulp.watch(paths.listenJs, ['testjs']);
 });
 
-gulp.task('test', ['testcss', 'testjs']);
+gulp.task('test', ['testcss', 'testjs', 'replace']);
 gulp.task('build', ['mincss', 'minjs', 'rev']);
