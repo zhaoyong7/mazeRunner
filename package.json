@@ -23,7 +23,8 @@
   },
   "homepage": "https://github.com/dongshaohan/mazeRunner",
   "devDependencies": {
-    "gulp": "^3.9.1"
+    "gulp": "^3.9.1",
+    "gulp-replace": "^0.5.4"
   },
   "dependencies": {
     "gulp-concat": "^2.6.0",
