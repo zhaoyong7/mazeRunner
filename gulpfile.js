@@ -6,6 +6,7 @@ var revCollector = require('gulp-rev-collector');
 var replace = require('gulp-replace');
 var uglify = require('gulp-uglify');
 var livereload = require('gulp-livereload');
+var webpack = require('gulp-webpack');
 
 var paths = {
     listenCss: ['./src/css/*.css'],
@@ -14,10 +15,8 @@ var paths = {
         './src/css/*.css',
     ],
     script: [
-        './vendor/jquery.js',
-        './vendor/json2.js',
-        './vendor/layer/layer.js',
-        './vendor/notify.js',
+        './vendor/*.js',
+        './vendor/**/*.js',
         './src/js/*.js'
     ],
     cssDist: ['dist/css/*.css'],
@@ -73,9 +72,12 @@ gulp.task('rev', function () {
 });
 
 gulp.task('replace', function () {
+    var cssjson = require('./rev/css/rev-manifest.json');
+    var jsjson = require('./rev/js/rev-manifest.json');
+
     gulp.src(['index.html'])
-    .pipe(replace('build/css/all-52b8a37d28.css', 'dist/css/' + paths.cssName))
-    .pipe(replace('build/js/all-1239e1b732.js', 'dist/js/' + paths.jsName))
+    .pipe(replace('build/css/' + cssjson[paths.cssName], 'dist/css/' + paths.cssName))
+    .pipe(replace('build/js/' + jsjson[paths.jsName], 'dist/js/' + paths.jsName))
     .pipe(gulp.dest('./'));
 });
 
