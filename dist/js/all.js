@@ -154,12 +154,6 @@ return new Za.prototype.init(a,b,c,d,e)}m.Tween=Za,Za.prototype={constructor:Za,
 
     // 角色控制类
     var Role = (function () {
-        // var grid = {
-        //     xDist: Maps.getConfig('wallLand') + Maps.getConfig('boxSize'),
-        //     xLen: Maps.getConfig('wallLand') + Maps.getConfig('mapXpx'),
-        //     yDist: Maps.getConfig('wallLand') + Maps.getConfig('boxSize'),
-        //     yLen: Maps.getConfig('wallLand') + Maps.getConfig('mapYpx')
-        // };
 
         return {
             // 绘制自己角色
@@ -319,9 +313,10 @@ return new Za.prototype.init(a,b,c,d,e)}m.Tween=Za,Za.prototype={constructor:Za,
                 // 通关
                 if ( LocalData.getData('role', 'x') >= config.mapWidth || LocalData.getData('role', 'y') >= config.mapHeight ) {
                     LocalData.updateData('role', 'x', 0);
+                    LocalData.updateData('role', 'y', 0);
                     LocalData.updateData('role', 'step', 0);
                     SelectorApi.$step.text(0);
-                    SelectorApi.$complete.text( Math.floor(++LocalData.getData('role', 'complete')) );
+                    SelectorApi.$complete.text( LocalData.getData('role', 'complete') + 1 );
                 }
 
                 SelectorApi.$mySelf.css({
