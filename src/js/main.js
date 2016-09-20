@@ -10,8 +10,50 @@
         $canvas: $("#canvas"),
         $step: $('#step'),
         $complete: $('#complete'),
-        $messege: $('#messege')
+        $messege: $('#messege'),
+        $roles: $("#roles")
     };
+
+    // 工具类
+    var Utils = (function () {
+        return {
+            // 过滤输入信息
+            removeHTMLTag: function (str) {
+                str = str.replace(/<script.*?>.*?<\/script>/ig, '');
+                str = str.replace(/<\/?[^>]*>/g, ''); // 去除HTML tag
+                str = str.replace(/[ | ]*\n/g, '\n'); // 去除行尾空白
+                str = str.replace(/ /ig, ''); // 去掉
+                return str;
+            },
+
+            // 随机颜色
+            randomColor: function () {
+                return '#' + ('00000' + (Math.random()*0x1000000<<0).toString(16)).slice(-6);
+            },
+
+            // 唯一ID
+            guidGenerator: function () {
+                var S4 = function() {
+                   return (((1+Math.random())*0x10000)|0).toString(16).substring(1);
+                };
+
+                return (S4()+S4()+"-"+S4()+"-"+S4()+"-"+S4()+"-"+S4()+S4()+S4());
+            }
+        }
+    })();
+
+    // socket通信类
+    var SocketIO = (function () {
+        // 配置路径
+        var config = {
+
+        };
+
+        // 方法
+        return {
+
+        }
+    })(); 
 
     // 坐标以及角色数据放本地
     var LocalData = (function () {
@@ -22,12 +64,7 @@
                 y: 0,
                 complete: 0 ,
                 step: 0 ,
-                name: null,
-                color: {
-                    red: Math.floor(Math.random() * 100) + 100,
-                    green: Math.floor(Math.random() * 100) + 100,
-                    blue: Math.floor(Math.random() * 100) + 100
-                }
+                name: null
             },
             others: {}
         };
@@ -42,7 +79,6 @@
             updateData: function (target, key, value) {
                 if ( !data.hasOwnProperty(target) ) return false;
                 if ( !data[target].hasOwnProperty(key) ) return false;
-                if ( !value ) return false;
 
                 data[target][key] = value;
             },
@@ -54,51 +90,54 @@
 
     // 角色控制类
     var Role = (function () {
+        // var grid = {
+        //     xDist: Maps.getConfig('wallLand') + Maps.getConfig('boxSize'),
+        //     xLen: Maps.getConfig('wallLand') + Maps.getConfig('mapXpx'),
+        //     yDist: Maps.getConfig('wallLand') + Maps.getConfig('boxSize'),
+        //     yLen: Maps.getConfig('wallLand') + Maps.getConfig('mapYpx')
+        // };
+
         return {
+            // 绘制自己角色
             paintRole: function (x, y) {
-                var x_px = (Maps.getConfig('wallLand') + Maps.getConfig('boxSize')) * x + 
-                    Maps.getConfig('wallLand') + Maps.getConfig('mapXpx') + "px" ;
-                var y_px = ((Maps.getConfig('wallLand') + Maps.getConfig('boxSize')) * y + 
-                    Maps.getConfig('wallLand') + Maps.getConfig('mapYpx')) + "px";
+                var x_px = Maps.getConfig('dist') * x + Maps.getConfig('xLen');
+                var y_px = Maps.getConfig('dist') * y + Maps.getConfig('yLen');
 
-                var r = LocalData.getData('role', 'color').red;
-                var g = LocalData.getData('role', 'color').green;
-                var b = LocalData.getData('role', 'color').blue;
-               
-                if ( $('#myself').length == 0 ) {
-                    $("#roles").append('<div id="myself" class="role"></div>');
-                    SelectorApi.$mySelf = $('#myself');
-                }
-                SelectorApi.$mySelf.css({
+                $('<div id="myself" class="role"></div>')
+                .appendTo(SelectorApi.$roles)
+                .css({
                     'left': x_px, 
                     'top': y_px, 
                     'width': Maps.getConfig('boxSize'), 
                     'height': Maps.getConfig('boxSize'), 
-                    'backgroundColor': "rgba("+r+","+g+","+b+", 1)"
+                    'backgroundColor': Utils.randomColor()
                 });
+                SelectorApi.$mySelf = $('#myself');
             },
-            repaintOther: function (x, y, clientID, r, g, b) {
-                var x_px = (Maps.getConfig('wallLand') + Maps.getConfig('boxSize')) * x + 
-                    Maps.getConfig('wallLand') + Maps.getConfig('mapXpx') + "px" ;
-                var y_px = ((Maps.getConfig('wallLand') + Maps.getConfig('boxSize')) * y + 
-                    Maps.getConfig('wallLand') + Maps.getConfig('mapYpx')) + "px";
 
-                $("#roles").append('<div id="'+clientID+'"class="role"></div>');
-                $("#" + clientID).css({
+            // 绘制其他人角色
+            repaintOther: function (x, y, clientID, color) {
+                var x_px = Maps.getConfig('dist') * x + Maps.getConfig('xLen');
+                var y_px = Maps.getConfig('dist') * y + Maps.getConfig('yLen');
+
+                $('<div id="'+ clientID +'" class="role"></div>')
+                .appendTo(SelectorApi.$roles)
+                .css({
                     'left': x_px, 
                     'top': y_px, 
                     'width': Maps.getConfig('boxSize'), 
                     'height': Maps.getConfig('boxSize'), 
-                    'backgroundColor': "rgba("+r+","+g+","+b+", 1)"
+                    'backgroundColor': color
                 });
+                SelectorApi[clientID] = $("#"+ clientID);
             },
+
+            // 通信中其他人角色移动
             move: function (x, y, clientID) {
-                var x_px = (Maps.getConfig('wallLand') + Maps.getConfig('boxSize')) * x + 
-                    Maps.getConfig('wallLand') + Maps.getConfig('mapXpx') + "px" ;
-                var y_px = ((Maps.getConfig('wallLand') + Maps.getConfig('boxSize')) * y + 
-                    Maps.getConfig('wallLand') + Maps.getConfig('mapYpx')) + "px";
+                var x_px = Maps.getConfig('dist') * x + Maps.getConfig('xLen');
+                var y_px = Maps.getConfig('dist') * y + Maps.getConfig('yLen');
 
-                $("#"+ clientID).css({'left': x_px, 'top': y_px});
+                SelectorApi[clientID].css({'left': x_px, 'top': y_px});
             }
         }
     })();
@@ -107,12 +146,15 @@
     var Maps = (function () {
         var config = {
             mapXpx: parseInt( $("#map").css('margin-left') ),
-            mapYpx: parseInt( $("#header").outerHeight() ) + 20,
+            mapYpx: parseInt( $("#header").outerHeight() ) + parseInt( $("#header").css('margin-bottom') ),
             mapWidth: 20,
             mapHeight: 20,
             wallLand: 2,
-            boxSize: 15,
+            boxSize: 15
         };
+        config.dist = config.wallLand + config.boxSize,
+        config.xLen = config.wallLand + config.mapXpx,
+        config.yLen = config.wallLand + config.mapYpx
 
         return {
             getConfig: function (key) {
@@ -122,7 +164,6 @@
             },
             setConfig: function (key, value) {
                 if ( !config.hasOwnProperty(key) ) return false;
-                if ( !value ) return false;
 
                 config[key] = value;
             },
@@ -135,21 +176,21 @@
                 var canvas2D = canvas.getContext("2d");
 
                 // 指定迷宫区域宽、高
-                canvas.width = (config.wallLand + config.boxSize) * width + config.wallLand;
-                canvas.height = (config.wallLand + config.boxSize) * height + config.wallLand;
+                canvas.width = config.dist * width + config.wallLand;
+                canvas.height = config.dist * height + config.wallLand;
 
                 // 填充黑色
                 canvas2D.fillStyle = "black";
                 canvas2D.fillRect(
                     0, 
                     0, 
-                    (config.wallLand + config.boxSize) * width + config.wallLand,
-                    (config.wallLand + config.boxSize) * height + config.wallLand
+                    config.dist * width + config.wallLand,
+                    config.dist * height + config.wallLand
                 );
 
                 // 绘制出口
                 canvas2D.clearRect(
-                    (config.wallLand + config.boxSize) * width,
+                    config.dist * width,
                     config.wallLand,
                     config.wallLand,
                     config.boxSize
@@ -161,22 +202,22 @@
 
                     for ( i = 0; i < width; i++) {
                         canvas2D.clearRect(
-                            (config.boxSize + config.wallLand) * i + config.wallLand,
-                            (config.boxSize + config.wallLand) * cr_l + config.wallLand,
+                            config.dist * i + config.wallLand,
+                            config.dist * cr_l + config.wallLand,
                             config.boxSize, config.boxSize
                         );
                         if ( x_data[i] == 0 ) {
                             canvas2D.clearRect(
-                                (config.boxSize + config.wallLand) * (i + 1),
-                                (config.boxSize + config.wallLand) * cr_l + config.wallLand,
+                                config.dist * (i + 1),
+                                config.dist * cr_l + config.wallLand,
                                 config.wallLand,
                                 config.boxSize
                             );
                         }
                         if ( y_data[i] == 0 ) {
                             canvas2D.clearRect(
-                                (config.boxSize + config.wallLand) * i + config.wallLand,
-                                (config.boxSize + config.wallLand) * (cr_l + 1),
+                                config.dist * i + config.wallLand,
+                                config.dist * (cr_l + 1),
                                 config.boxSize, 
                                 config.wallLand
                             );
@@ -187,9 +228,9 @@
 
             // 角色控制
             moveRole: function (toX, toY) {
-                var next_x = (config.wallLand + config.boxSize) * LocalData.getData('role', 'x') + config.wallLand +
+                var next_x = config.dist * LocalData.getData('role', 'x') + config.wallLand +
                     (toX > 0 ? (config.boxSize * toX) : (toX < 0 ? config.wallLand * toX : 0 ));
-                var next_y = (config.wallLand + config.boxSize) * LocalData.getData('role', 'y') + config.wallLand +
+                var next_y = config.dist * LocalData.getData('role', 'y') + config.wallLand +
                     (toY > 0 ? (config.boxSize * toY) : (toY < 0 ? config.wallLand * toY : 0 ));
                 var canvas2D = SelectorApi.$canvas[0].getContext("2d");
                 var nextImageData = canvas2D.getImageData(
@@ -202,12 +243,13 @@
                 // 如果图形颜色为黑(墙)，碰壁不走，否则增加的步数
                 if ( 0 == nextImageData.data[0] && 0 == nextImageData.data[1] &&
                         0 == nextImageData.data[2] && 255 == nextImageData.data[3]) {
-                    return;
+                    return false;
                 }
-
-                LocalData.updateData('role', 'step', +LocalData.getData('role', 'step') + 1);
-                LocalData.updateData('role', 'x', +LocalData.getData('role', 'x') + +toX);
-                LocalData.updateData('role', 'y', +LocalData.getData('role', 'y') + +toY);
+        
+                LocalData.updateData('role', 'step', LocalData.getData('role', 'step') + 1);
+                LocalData.updateData('role', 'x', LocalData.getData('role', 'x') + toX);
+                LocalData.updateData('role', 'y', LocalData.getData('role', 'y') + toY);
+    
                 SelectorApi.$step.text( LocalData.getData('role', 'step') );
 
                 // 通关
@@ -218,10 +260,9 @@
                     SelectorApi.$complete.text( Math.floor(++LocalData.getData('role', 'complete')) );
                 }
 
-                SelectorApi.$mySelf.css({'left': (config.wallLand + config.boxSize) * LocalData.getData('role', 'x')
-                    + config.wallLand + config.mapXpx,
-                    'top': ((config.wallLand +config.boxSize) * LocalData.getData('role', 'y') 
-                    + config.wallLand + config.mapYpx)
+                SelectorApi.$mySelf.css({
+                    'left': config.dist * LocalData.getData('role', 'x') + config.xLen,
+                    'top': config.dist * LocalData.getData('role', 'y') + config.yLen
                 });
             }
         };
@@ -229,7 +270,7 @@
 
     // 发送消息
     function sendMessage () {
-        var text = removeHTMLTag( SelectorApi.$messege.val() );
+        var text = Utils.removeHTMLTag( SelectorApi.$messege.val() );
         if ( !text || text == undefined ) return false;
 
         SelectorApi.$messege.val('');
@@ -239,33 +280,21 @@
             tipsMore: true ,
             skin: 'layer_tipes_skin'
         });
-    }
-
-    // 过滤输入信息
-    function removeHTMLTag (str) {
-        str = str.replace(/<script.*?>.*?<\/script>/ig, '');
-        str = str.replace(/<\/?[^>]*>/g, ''); // 去除HTML tag
-        str = str.replace(/[ | ]*\n/g, '\n'); // 去除行尾空白
-        str = str.replace(/ /ig, ''); // 去掉
-        return str;
     };
 
     // 输入姓名
-    function show_prompt () {
+    function inputYourName () {
         var name = window.prompt("请输入昵称:") ;
         if ( !name || name == 'null' ) {
             alert("输入名字为空或者为'null'，请重新输入！");
             show_prompt();
         }
-        LocalData.updateData('role', 'name', name);
-        bengin();
-    }
 
-    function bengin () {
+        LocalData.updateData('role', 'name', name);
         SelectorApi.$step.text( LocalData.getData('role', 'step') );
         SelectorApi.$complete.text( LocalData.getData('role', 'complete') );
         Role.paintRole( LocalData.getData('role', 'x'), LocalData.getData('role', 'y') );
-    };
+    }
 
     // 初始化地图与事件
     function initMapAndEvent (source) {
@@ -287,7 +316,7 @@
             }
         };
 
-        show_prompt();
+        inputYourName();
     };
 
     // 拿地图数据
