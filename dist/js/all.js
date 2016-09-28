@@ -69,7 +69,7 @@ return new Za.prototype.init(a,b,c,d,e)}m.Tween=Za,Za.prototype={constructor:Za,
  */
 (function () {  
 
-    var DEBUG = true ;
+    var DEBUG = false ;
     // 保存选择器
     var SelectorApi = {
         $canvas: $("#canvas"),
