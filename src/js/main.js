@@ -5,7 +5,7 @@
  */
 (function () {  
 
-    var DEBUG = false ;
+    var DEBUG = true ;
     // 保存选择器
     var SelectorApi = {
         $canvas: $("#canvas"),
