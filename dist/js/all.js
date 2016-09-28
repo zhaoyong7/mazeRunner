@@ -158,6 +158,13 @@ return new Za.prototype.init(a,b,c,d,e)}m.Tween=Za,Za.prototype={constructor:Za,
                     Role.move(data.x,data.y,data.id) ;
                     break ;
                 case 'message' :
+                    var text = Utils.removeHTMLTag( data.text );
+                    layer.tips(text, '#'+data.id, {
+                        tips: [4, '#3595CC'],
+                        time: 2500,
+                        tipsMore: true ,
+                        skin: 'layer_tipes_skin'
+                    });
                     break ;
                 case 'broadcast' :
                     break ;
