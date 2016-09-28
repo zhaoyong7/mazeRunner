@@ -5,6 +5,7 @@
  */
 (function () {  
 
+    var DEBUG = false ;
     // 保存选择器
     var SelectorApi = {
         $canvas: $("#canvas"),
@@ -13,6 +14,12 @@
         $messege: $('#messege'),
         $roles: $("#roles")
     };
+
+    var Console = {
+        log : function(log){
+            !DEBUG || console.log(log) ;
+        }
+    } ;
 
     // 工具类
     var Utils = (function () {
@@ -43,15 +50,91 @@
     })();
 
     // socket通信类
-    var SocketIO = (function () {
+    var Socket = (function () {
         // 配置路径
         var config = {
-
+            host : '120.25.105.202' ,
+            port : '8283' ,
+            webSocket : null
         };
+
+        function onclose(){
+            Console.log("连接关闭，定时重连") ;
+            Socket.connect() ;
+        }
+
+        function onopen(){
+            var loginData = LocalData.getData('role') ;
+            loginData.type = 'login' ;
+            Socket.send(loginData) ;
+        }
+
+        function onerror(){
+            Console.log("出现错误");
+        }
+
+        function onmessage(e){
+            var data = JSON.parse(e.data) ;
+            Console.log(data) ;
+            switch (data.type){
+                case 'login' :
+                    LocalData.appendData('others',data.id,data) ;
+                    Role.repaintOther(data.x,data.y,data.id,data.color) ;
+                    break ;
+                case 'self':
+                    LocalData.updateData('role','id',data.id) ;
+                    for(var clientID in data.client_list  ){
+                        if(clientID == data.id)
+                            continue ;
+                        var other = data.client_list[clientID] ;
+                        Role.repaintOther(other.x,other.y,other.id,other.color) ;
+                    }
+                    break;
+                case 'move' :
+                    Role.move(data.x,data.y,data.id) ;
+                    break ;
+                case 'message' :
+                    break ;
+                case 'broadcast' :
+                    break ;
+                case 'complete':
+                    break ;
+                case 'check' :
+                    break ;
+                case 'logout':
+                    Role.clearOther(data.id) ;
+                    break ;
+            }
+        }
 
         // 方法
         return {
+            connect : function(){
+                var host = DEBUG ? 'localhost' : config.host ;
+                config.webSocket = new WebSocket("ws://"+host+":"+config.port);
 
+                config.webSocket.onopen    = onopen ;
+
+                config.webSocket.onclose   = onclose ;
+
+                config.webSocket.onerror   = onerror ;
+
+                config.webSocket.onmessage = onmessage ;
+            },
+            send : function(data){
+               config.webSocket.send(JSON.stringify(data)) ;
+            },
+            message:function(text){
+               config.webSocket.send(JSON.stringify({type:'message',text:text}))
+            },
+            move:function(){
+               var moveData = LocalData.getData('role') ;
+               moveData.type = 'move' ;
+               config.webSocket.send(JSON.stringify(moveData))
+            },
+            complete:function(){
+
+            }
         }
     })(); 
 
@@ -60,11 +143,13 @@
         var data = {
             role: {
                 id: 0,
+                sid: 0 ,
                 x: 0,
                 y: 0,
                 complete: 0 ,
                 step: 0 ,
-                name: null
+                name: null ,
+                color:null
             },
             others: {}
         };
@@ -72,14 +157,17 @@
         return {
             getData: function (target, key) {
                 if ( !data.hasOwnProperty(target) ) return false;
+                if(!key || key == 'undefined') return data[target] ;
                 if ( !data[target].hasOwnProperty(key) ) return false;
-
                 return data[target][key];
             },
             updateData: function (target, key, value) {
                 if ( !data.hasOwnProperty(target) ) return false;
                 if ( !data[target].hasOwnProperty(key) ) return false;
-
+                data[target][key] = value;
+            },
+            appendData: function(target,key,value){
+               if ( !data.hasOwnProperty(target) ) return false;
                 data[target][key] = value;
             },
             clearOther: function () {
@@ -97,6 +185,8 @@
                 var x_px = Maps.getConfig('dist') * x + Maps.getConfig('xLen');
                 var y_px = Maps.getConfig('dist') * y + Maps.getConfig('yLen');
 
+                var color = Utils.randomColor() ;
+
                 $('<div id="myself" class="role"></div>')
                 .appendTo(SelectorApi.$roles)
                 .css({
@@ -104,8 +194,9 @@
                     'top': y_px, 
                     'width': Maps.getConfig('boxSize'), 
                     'height': Maps.getConfig('boxSize'), 
-                    'backgroundColor': Utils.randomColor()
+                    'backgroundColor': color
                 });
+                LocalData.updateData('role','color',color) ;
                 SelectorApi.$mySelf = $('#myself');
             },
 
@@ -125,7 +216,9 @@
                 });
                 SelectorApi[clientID] = $("#"+ clientID);
             },
-
+            clearOther : function(clientID){
+                SelectorApi[clientID].remove() ;
+            },
             // 通信中其他人角色移动
             move: function (x, y, clientID) {
                 var x_px = Maps.getConfig('dist') * x + Maps.getConfig('xLen');
@@ -253,12 +346,15 @@
                     LocalData.updateData('role', 'step', 0);
                     SelectorApi.$step.text(0);
                     SelectorApi.$complete.text( LocalData.getData('role', 'complete') + 1 );
+                    Socket.complete() ;
                 }
 
                 SelectorApi.$mySelf.css({
                     'left': config.dist * LocalData.getData('role', 'x') + config.xLen,
                     'top': config.dist * LocalData.getData('role', 'y') + config.yLen
                 });
+
+                Socket.move() ;
             }
         };
     })();
@@ -275,6 +371,12 @@
             tipsMore: true ,
             skin: 'layer_tipes_skin'
         });
+
+        var message = {
+            type : 'message' ,
+            text : text
+        } ;
+        Socket.send(message)
     };
 
     // 输入姓名
@@ -312,6 +414,9 @@
         };
 
         inputYourName();
+
+        //链接Socket
+        Socket.connect() ;
     };
 
     // 拿地图数据
