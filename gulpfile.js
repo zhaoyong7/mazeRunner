@@ -59,7 +59,7 @@ gulp.task('minjs', function () {
     .pipe(gulp.dest('rev/js'));
 });
 
-gulp.task('rev', function () {
+gulp.task('rev', ['mincss', 'minjs'], function () {
     gulp.src(['rev/**/*.json', 'index.html'])
     .pipe(revCollector({
         replaceReved: true,
@@ -71,7 +71,7 @@ gulp.task('rev', function () {
     .pipe(gulp.dest('./'));
 });
 
-gulp.task('replace', function () {
+gulp.task('replace', ['testcss', 'testjs'], function () {
     var cssjson = require('./rev/css/rev-manifest.json');
     var jsjson = require('./rev/js/rev-manifest.json');
 
@@ -88,5 +88,5 @@ gulp.task('watch', function () {
     gulp.watch(paths.listenJs, ['testjs']);
 });
 
-gulp.task('test', ['testcss', 'testjs', 'replace']);
-gulp.task('build', ['mincss', 'minjs', 'rev']);
+gulp.task('test', ['replace']);
+gulp.task('build', ['rev']);
