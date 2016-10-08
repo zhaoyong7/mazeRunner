@@ -266,14 +266,14 @@
             // 初始化地图
             initMapFromData: function (grid) {
                 var canvas = SelectorApi.$canvas[0];
-                var width = config.mapWidth;
-                var height = config.mapHeight;
+                var width = config.mapWidth = grid.width;
+                var height = config.mapHeight = grid.height;
                 var canvas2D = canvas.getContext("2d");
 
                 // 指定迷宫区域宽、高
                 canvas.width = config.dist * width + config.wallLand;
                 canvas.height = config.dist * height + config.wallLand;
-
+               
                 // 填充黑色
                 canvas2D.fillStyle = "black";
                 canvas2D.fillRect(
@@ -291,28 +291,29 @@
                     config.boxSize
                 );
 
-                for ( cr_l = 0; cr_l < height; cr_l++ ) {
-                    var x_data = grid.x[cr_l];
-                    var y_data = grid.y[cr_l];
+                for ( i = 0; i < height; i++ ) {
+                    var x_data = grid.x[i];
+                    var y_data = grid.y[i];
 
-                    for ( i = 0; i < width; i++) {
+                    for ( j = 0; j < width; j++ ) {
                         canvas2D.clearRect(
+                            config.dist * j + config.wallLand,
                             config.dist * i + config.wallLand,
-                            config.dist * cr_l + config.wallLand,
-                            config.boxSize, config.boxSize
+                            config.boxSize, 
+                            config.boxSize
                         );
-                        if ( x_data[i] == 0 ) {
+                        if ( x_data[j] == 0 ) {
                             canvas2D.clearRect(
-                                config.dist * (i + 1),
-                                config.dist * cr_l + config.wallLand,
+                                config.dist * (j + 1),
+                                config.dist * i + config.wallLand,
                                 config.wallLand,
                                 config.boxSize
                             );
                         }
-                        if ( y_data[i] == 0 ) {
+                        if ( y_data[j] == 0 ) {
                             canvas2D.clearRect(
-                                config.dist * i + config.wallLand,
-                                config.dist * (cr_l + 1),
+                                config.dist * j + config.wallLand,
+                                config.dist * (i + 1),
                                 config.boxSize, 
                                 config.wallLand
                             );
@@ -404,8 +405,6 @@
     // 初始化地图与事件
     function initMapAndEvent (source) {
         // 调用地图
-        Maps.setConfig('mapWidth', source.data.width);
-        Maps.setConfig('mapHeight', source.data.height);
         Maps.initMapFromData(source.data);
 
         // 启动控制,监听键盘
